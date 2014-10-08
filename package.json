@@ -23,8 +23,10 @@
 
   "dependencies": {
     "commander": "2.3.x",
+    "download": "3.0.x",
     "q": "1.0.x",
     "request": "2.45.x",
+    "prompt": "0.2.x",
     "sprintf": "0.1.x"
   }
 }

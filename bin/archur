@@ -8,11 +8,116 @@
 (function() {
   'use strict';
 
-  var app    = require('commander');
-  var archur = require('archur');
+  var pjson    = require('../package.json');
+  var archur   = require('../lib/archur.js');
+  var Download = require('download');
+  var prompt   = require('prompt');
+  var Q        = require('q');
+  var sprintf  = require('sprintf');
 
-  app.version('0.0.0')
+  var app = require('commander')
+    .version(pjson.version)
+    .option('-p, --package <pkg>', 'package name or query')
+    .option('-r, --repo <repo>', 'package repository name [' + archur.defaults.repo + ']')
+    .option('-a, --arch <arch>', 'system architecture [' + archur.defaults.arch + ']')
+    .option('-s, --search', 'search for all packages instead of exact match')
     .option('-d, --download', 'download package')
     .parse(process.argv);
+
+  var cwd = process.cwd();
+
+  // default prompt options
+  prompt.message = prompt.delimiter = '';
+  prompt.colors = false;
+
+  /**
+   * Exit now
+   *
+   * @param {Number} [code] - exit code
+   * @param {String} [msg] - exit message
+   */
+  var exit = function(code, msg) {
+    code = code || 0;
+
+    if (msg) {
+      var output = (code === 0) ? 'log' : 'error';
+      output(msg);
+    }
+
+    process.exit(code);
+  };
+
+  /**
+   * Download a file
+   *
+   * @param {String} uri - file URI
+   * @param {String} [dir] - path to download to, defaults to process.cwd
+   * @return {Promise} to resolve to saved path, or reject with error
+   */
+  var download = function(uri, dir) {
+    var d = Q.defer();
+    dir = dir || cwd;
+
+    var dl = new Download({ mode: '0644' }).get(uri).dest(dir);
+
+    dl.run(function(err, files, stream) {
+      if (err) { return d.reject(err); }
+      d.resolve(files[0].path);
+    });
+
+    return d.promise;
+  };
+
+  /**
+   * Download multiple files
+   *
+   * @param {Array} uris - file URIs
+   * @param {String} [dir] - path to download to, defaults to process.cwd
+   * @return {Promise} to resolve to saved paths, or reject with error
+   */
+  var downloads = function(uris, dir) {
+    dir = dir || cwd;
+
+    return Q.allSettled(uris.map(function(uri) {
+      return download(uri, dir);
+    }));
+  };
+
+  if (app.download) {
+    if (app.search) {
+      prompt.confirm('Download multiple packages from search results? [y/N]', {
+        pattern: /.*/
+      }, function(err, ok) {
+        if (err) { exit(1); }
+        if (!ok) { exit(0); }
+      });
+
+      // download multiples now
+    }
+
+    archur.download(app.package, app.repo, app.arch).then(function(uri) {
+      console.log('Downloading', uri);ls
+
+      download(uri).fail(function(err) {
+        exit(1, 'Error downloading file');
+      });
+
+    }, function(err) {
+      exit(1, 'Package not found');
+    }).done();
+  }
+
+  else if (app.search) {
+    archur.search(app.package, app.repo, app.arch).then(function(results) {
+
+      results.forEach(function(pkg) {
+        var line = sprintf('%s %s: %s', pkg.pkgname, pkg.pkgver, pkg.pkgdesc);
+        console.log(line);
+      });
+
+    }, function(err) {
+      exit(1, 'Search error');
+    });
+  }
 
 })();

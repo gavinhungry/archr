@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+/**
+ * archur - Search for and download Arch Linux packages
+ * https://github.com/gavinhungry/archur
+ */
+
+(function() {
+  'use strict';
+
+  var app    = require('commander');
+  var archur = require('archur');
+
+  app.version('0.0.0')
+    .option('-d, --download', 'download package')
+    .parse(process.argv);
+
+})();

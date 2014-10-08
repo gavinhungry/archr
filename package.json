@@ -1,0 +1,29 @@
+{
+  "name": "archur",
+  "version": "0.0.0",
+  "author": "Gavin Lloyd <gavinhungry@gmail.com>",
+  "description": "Search for and download Arch Linux packages",
+  "license": "MIT",
+
+  "keywords": [
+    "linux",
+    "archlinux"
+  ],
+
+  "homepage": "https://github.com/gavinhungry/archur",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gavinhungry/archur.git"
+  },
+
+  "main": "lib/archur.js",
+  "bin": {
+    "archur": "bin/archur"
+  },
+
+  "dependencies": {
+    "commander": "2.3.x",
+    "q": "1.0.x",
+    "request": "2.45.x"
+  }
+}

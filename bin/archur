@@ -41,7 +41,7 @@
 
     if (msg) {
       var output = (code === 0) ? 'log' : 'error';
-      output(msg);
+      console[output](msg);
     }
 
     process.exit(code);
@@ -96,7 +96,7 @@
     }
 
     archur.download(app.package, app.repo, app.arch).then(function(uri) {
-      console.log('Downloading', uri);ls
+      console.log('Downloading', uri);
 
       download(uri).fail(function(err) {
         exit(1, 'Error downloading file');
@@ -109,12 +109,9 @@
 
   else if (app.search) {
     archur.search(app.package, app.repo, app.arch).then(function(results) {
-
       results.forEach(function(pkg) {
-        var line = sprintf('%s %s: %s', pkg.pkgname, pkg.pkgver, pkg.pkgdesc);
-        console.log(line);
+        console.log(pkg.pkgname);
       });
-
     }, function(err) {
       exit(1, 'Search error');
     });

@@ -27,6 +27,7 @@
     "q": "1.0.x",
     "request": "2.45.x",
     "prompt": "0.2.x",
+    "queue": "3.0.x",
     "sprintf": "0.1.x"
   }
 }

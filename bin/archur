@@ -13,15 +13,18 @@
   var Download = require('download');
   var prompt   = require('prompt');
   var Q        = require('q');
+  var queue    = require('queue');
   var sprintf  = require('sprintf');
 
   var app = require('commander')
     .version(pjson.version)
-    .option('-p, --package <pkg>', 'package name or query')
-    .option('-r, --repo <repo>', 'package repository name [' + archur.defaults.repo + ']')
-    .option('-a, --arch <arch>', 'system architecture [' + archur.defaults.arch + ']')
-    .option('-s, --search', 'search for all packages instead of exact match')
+    .option('-s, --search', 'search for all packages')
     .option('-d, --download', 'download package')
+    .option('-p, --package <pkg>', 'package name or query')
+    .option('-r, --repo <repo>', sprintf('package repository name [%s]', archur.defaults.repo))
+    .option('-a, --arch <arch>', sprintf('system architecture [%s]', archur.defaults.arch))
+    .option('-c, --concurrency <n>', 'number of concurrency downloads [1]')
+    .option('-D, --dir <dir>', 'path to save downloads')
     .parse(process.argv);
 
   var cwd = process.cwd();
@@ -48,6 +51,28 @@
   };
 
   /**
+   * Allow for -p linux -r core or -p core/linux
+   *
+   * @param {String} pkgname - package name or repo/package
+   * @param {String} repo - package repository name fallback
+   * @return {Object} { pkgname, repo }
+   */
+  var split = function(pkgname, repo) {
+    if (pkgname) {
+      var s = pkgname.split('/');
+      if (s.length > 1) {
+        repo = s[0]
+        pkgname = s[1];
+      }
+    }
+
+    return {
+      pkgname: pkgname,
+      repo: repo
+    };
+  };
+
+  /**
    * Download a file
    *
    * @param {String} uri - file URI
@@ -60,6 +85,7 @@
 
     var dl = new Download({ mode: '0644' }).get(uri).dest(dir);
 
+    console.log('Downloading', uri);
     dl.run(function(err, files, stream) {
       if (err) { return d.reject(err); }
       d.resolve(files[0].path);
@@ -73,15 +99,33 @@
    *
    * @param {Array} uris - file URIs
    * @param {String} [dir] - path to download to, defaults to process.cwd
-   * @return {Promise} to resolve to saved paths, or reject with error
+   * @return {Promise} to resolve to saved paths
    */
   var downloads = function(uris, dir) {
+    var d = Q.defer();
     dir = dir || cwd;
 
-    return Q.allSettled(uris.map(function(uri) {
-      return download(uri, dir);
-    }));
+    var paths = [];
+    var dls = queue({
+      concurrency: parseInt(app.concurrency, 10)
+    });
+
+    uris.forEach(function(uri) {
+      dls.push(function(done) {
+        download(uri, dir).then(function(path) {
+          paths.push(path);
+        }).finally(done);
+      });
+    })
+
+    dls.start(function() {
+      d.resolve(paths);
+    });
+
+    return d.promise;
   };
+
+  var args = split(app.package, app.repo);
 
   if (app.download) {
     if (app.search) {
@@ -90,31 +134,48 @@
       }, function(err, ok) {
         if (err) { exit(1); }
         if (!ok) { exit(0); }
-      });
 
-      // download multiples now
+        archur.search(args.pkgname, args.repo, app.arch)
+          .then(function(results) {
+
+          var uris = results.map(archur.uri);
+
+          downloads(uris).fail(function(err) {
+            exit(1, 'Error downloading files');
+          });
+
+        }, function(err) {
+          exit(1, 'Search error');
+        });
+
+      });
+    } else {
+      archur
+        .download(args.pkgname, args.repo, app.arch, app.dir)
+        .then(function(uri) {
+
+        download(uri, app.dir).fail(function(err) {
+          exit(1);
+        });
+
+      }, function(err) {
+        exit(1, 'Package not found');
+      }).done();
     }
-
-    archur.download(app.package, app.repo, app.arch).then(function(uri) {
-      console.log('Downloading', uri);
-
-      download(uri).fail(function(err) {
-        exit(1, 'Error downloading file');
-      });
-
-    }, function(err) {
-      exit(1, 'Package not found');
-    }).done();
   }
 
   else if (app.search) {
-    archur.search(app.package, app.repo, app.arch).then(function(results) {
+    archur.search(args.pkgname, args.repo, app.arch).then(function(results) {
       results.forEach(function(pkg) {
-        console.log(pkg.pkgname);
+        console.log(sprintf('%s/%s', pkg.repo, pkg.pkgname));
       });
     }, function(err) {
       exit(1, 'Search error');
     });
+  }
+
+  else {
+    app.outputHelp();
   }
 
 })();

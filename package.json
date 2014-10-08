@@ -24,6 +24,7 @@
   "dependencies": {
     "commander": "2.3.x",
     "q": "1.0.x",
-    "request": "2.45.x"
+    "request": "2.45.x",
+    "sprintf": "0.1.x"
   }
 }

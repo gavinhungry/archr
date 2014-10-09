@@ -9,7 +9,7 @@
   'use strict';
 
   var pjson    = require('../package.json');
-  var archur   = require('../lib/archur.js');
+  var archur   = require('archur');
   var Download = require('download');
   var prompt   = require('prompt');
   var Q        = require('q');

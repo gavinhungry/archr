@@ -1,5 +1,5 @@
-archur
-======
+archr
+=====
 Search for and download [Arch Linux](https://www.archlinux.org) packages.
 Provides both a module and a command line tool.
 
@@ -7,39 +7,39 @@ Provides both a module and a command line tool.
 Installation
 ------------
 
-    npm install archur # install with -g for command-line usage
+    npm install archr # install with -g for command-line usage
 
 
 Usage
 -----
 
-    var archur = require('archur');
+    var archr = require('archr');
 
-See `archur.defaults` for configurable defaults.
+See `archr.defaults` for configurable defaults.
 
 ### Search
 
-    // archur.search(query, [repo], [arch]) -> {Promise}
+    // archr.search(query, [repo], [arch]) -> {Promise}
 
-    archur.search('linux').then(function(pkgs) {
+    archr.search('linux').then(function(pkgs) {
       // pkgs is an array of package data objects
     });
 
 
 ### Individual Package
 
-    // archur.package(pkgname, [repo], [arch]) -> {Promise}
+    // archr.package(pkgname, [repo], [arch]) -> {Promise}
 
-    archur.package('linux', 'testing').then(function(pkg) {
+    archr.package('linux', 'testing').then(function(pkg) {
       // pkg is a single package data object
     });
 
 
 ### Download URI
 
-    // archur.download(pkgname, [repo], [arch]) -> {Promise}
+    // archr.download(pkgname, [repo], [arch]) -> {Promise}
 
-    archur.download('linux', 'testing').then(function(uri) {
+    archr.download('linux', 'testing').then(function(uri) {
       // uri is a URI to download testing/linux
     });
 
@@ -62,15 +62,15 @@ Command Line
 
 Search for keyword on all repos:
 
-    $ archur -sp linux
+    $ archr -sp linux
 
 Search for keyword on a specific repo:
 
-    $ archur -sp linux -r testing # or '-sp testing/linux'
+    $ archr -sp linux -r testing # or '-sp testing/linux'
 
-Download package (change mirror in `archur.defaults`):
+Download package (change mirror in `archr.defaults`):
 
-    $ archur -dp testing/linux
+    $ archr -dp testing/linux
 
 
 License

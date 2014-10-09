@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * archur - Search for and download Arch Linux packages
- * https://github.com/gavinhungry/archur
+ * archr - Search for and download Arch Linux packages
+ * https://github.com/gavinhungry/archr
  */
 
 (function() {
   'use strict';
 
   var pjson    = require('../package.json');
-  var archur   = require('../lib/archur.js');
+  var archr   = require('archr');
   var Download = require('download');
   var prompt   = require('prompt');
   var Q        = require('q');
@@ -21,8 +21,8 @@
     .option('-s, --search', 'search for all packages')
     .option('-d, --download', 'download package')
     .option('-p, --package <pkg>', 'package name or query')
-    .option('-r, --repo <repo>', sprintf('package repository name [%s]', archur.defaults.repo))
-    .option('-a, --arch <arch>', sprintf('system architecture [%s]', archur.defaults.arch))
+    .option('-r, --repo <repo>', sprintf('package repository name [%s]', archr.defaults.repo))
+    .option('-a, --arch <arch>', sprintf('system architecture [%s]', archr.defaults.arch))
     .option('-c, --concurrency <n>', 'number of concurrency downloads [1]')
     .option('-D, --dir <dir>', 'path to save downloads')
     .parse(process.argv);
@@ -135,10 +135,10 @@
         if (err) { exit(1); }
         if (!ok) { exit(0); }
 
-        archur.search(args.pkgname, args.repo, app.arch)
+        archr.search(args.pkgname, args.repo, app.arch)
           .then(function(results) {
 
-          var uris = results.map(archur.uri);
+          var uris = results.map(archr.uri);
 
           downloads(uris).fail(function(err) {
             exit(1, 'Error downloading files');
@@ -150,7 +150,7 @@
 
       });
     } else {
-      archur
+      archr
         .download(args.pkgname, args.repo, app.arch, app.dir)
         .then(function(uri) {
 
@@ -165,7 +165,7 @@
   }
 
   else if (app.search) {
-    archur.search(args.pkgname, args.repo, app.arch).then(function(results) {
+    archr.search(args.pkgname, args.repo, app.arch).then(function(results) {
       results.forEach(function(pkg) {
         console.log(sprintf('%s/%s', pkg.repo, pkg.pkgname));
       });

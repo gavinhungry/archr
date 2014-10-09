@@ -1,5 +1,5 @@
 {
-  "name": "archur",
+  "name": "archr",
   "version": "0.0.0",
   "author": "Gavin Lloyd <gavinhungry@gmail.com>",
   "description": "Search for and download Arch Linux packages",
@@ -10,15 +10,15 @@
     "archlinux"
   ],
 
-  "homepage": "https://github.com/gavinhungry/archur",
+  "homepage": "https://github.com/gavinhungry/archr",
   "repository": {
     "type": "git",
-    "url": "git://github.com/gavinhungry/archur.git"
+    "url": "git://github.com/gavinhungry/archr.git"
   },
 
-  "main": "lib/archur.js",
+  "main": "lib/archr.js",
   "bin": {
-    "archur": "bin/archur"
+    "archr": "bin/archr"
   },
 
   "dependencies": {

@@ -9,7 +9,7 @@
   'use strict';
 
   var pjson    = require('../package.json');
-  var archr   = require('archr');
+  var archr    = require('../lib/archr.js');
   var Download = require('download');
   var prompt   = require('prompt');
   var Q        = require('q');
@@ -25,6 +25,7 @@
     .option('-a, --arch <arch>', sprintf('system architecture [%s]', archr.defaults.arch))
     .option('-c, --concurrency <n>', 'number of concurrency downloads [1]')
     .option('-D, --dir <dir>', 'path to save downloads')
+    .option('-q, --quiet', 'no version output')
     .parse(process.argv);
 
   var cwd = process.cwd();
@@ -167,7 +168,13 @@
   else if (app.search) {
     archr.search(args.pkgname, args.repo, app.arch).then(function(results) {
       results.forEach(function(pkg) {
-        console.log(sprintf('%s/%s', pkg.repo, pkg.pkgname));
+        var output = sprintf('%s/%s', pkg.repo, pkg.pkgname);
+
+        if (!app.quiet) {
+          output += sprintf(' %s-%s', pkg.pkgver, pkg.pkgrel);
+        }
+
+        console.log(output);
       });
     }, function(err) {
       exit(1, 'Search error');

@@ -3,46 +3,49 @@ archr
 Search for and download [Arch Linux](https://www.archlinux.org) packages.
 Provides both a module and a command line tool.
 
-
 Installation
 ------------
 
-    npm install archr # install with -g for command-line usage
-
+    $ npm install archr # install with -g for command-line usage
 
 Usage
 -----
 
-    var archr = require('archr');
+```javascript
+var archr = require('archr');
+```
 
 See `archr.defaults` for configurable defaults.
 
 ### Search
 
-    // archr.search(query, [repo], [arch]) -> {Promise}
+```javascript
+// archr.search(query, [repo], [arch]) -> {Promise}
 
-    archr.search('linux').then(function(pkgs) {
-      // pkgs is an array of package data objects
-    });
-
+archr.search('linux').then(function(pkgs) {
+  // pkgs is an array of package data objects
+});
+```
 
 ### Individual Package
 
-    // archr.package(pkgname, [repo], [arch]) -> {Promise}
+```javascript
+// archr.package(pkgname, [repo], [arch]) -> {Promise}
 
-    archr.package('linux', 'testing').then(function(pkg) {
-      // pkg is a single package data object
-    });
-
+archr.package('linux', 'testing').then(function(pkg) {
+  // pkg is a single package data object
+});
+```
 
 ### Download URI
 
-    // archr.download(pkgname, [repo], [arch]) -> {Promise}
+```javascript
+// archr.download(pkgname, [repo], [arch]) -> {Promise}
 
-    archr.download('linux', 'testing').then(function(uri) {
-      // uri is a URI to download testing/linux
-    });
-
+archr.download('linux', 'testing').then(function(uri) {
+  // uri is a URI to download testing/linux
+});
+```
 
 Command Line
 ------------
@@ -56,7 +59,7 @@ Command Line
     -a, --arch <arch>      system architecture [x86_64]
     -c, --concurrency <n>  number of concurrency downloads [1]
     -D, --dir <dir>        path to save downloads
-
+    -q, --quiet            no version output
 
 ### Examples
 
@@ -71,7 +74,6 @@ Search for keyword on a specific repo:
 Download package (change mirror in `archr.defaults`):
 
     $ archr -dp testing/linux
-
 
 License
 -------

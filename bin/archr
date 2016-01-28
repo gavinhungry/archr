@@ -23,7 +23,7 @@
     .option('-p, --package <pkg>', 'package name or query')
     .option('-r, --repo <repo>', sprintf('package repository name [%s]', archr.defaults.repo))
     .option('-a, --arch <arch>', sprintf('system architecture [%s]', archr.defaults.arch))
-    .option('-c, --concurrency <n>', 'number of concurrency downloads [1]')
+    .option('-c, --concurrency <n>', 'number of concurrent downloads [1]')
     .option('-D, --dir <dir>', 'path to save downloads')
     .option('-q, --quiet', 'no version output')
     .parse(process.argv);

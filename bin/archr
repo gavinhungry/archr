@@ -93,7 +93,11 @@
 
     console.log('Downloading', uri);
     dl.run(function(err, files, stream) {
-      if (err) { return d.reject(err); }
+      if (err) {
+        console.error(sprintf('Error: %s %s', err.statusCode, err.statusMessage));
+        return d.reject(err);
+      }
+
       d.resolve(files[0].path);
     });
 

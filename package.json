@@ -22,12 +22,11 @@
   },
 
   "dependencies": {
+    "async": "1.5.2",
     "commander": "2.9.x",
     "download": "4.4.x",
     "q": "1.4.x",
     "request": "2.69.x",
-    "prompt": "0.2.x",
-    "queue": "3.1.x",
     "sprintf": "0.1.x"
   }
 }

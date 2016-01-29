@@ -6,7 +6,7 @@ Provides both a module and a command line tool.
 Installation
 ------------
 
-    $ npm install archr # install with -g for command-line usage
+    $ npm install archr
 
 Usage
 -----
@@ -50,32 +50,33 @@ archr.download('linux', 'testing').then(function(uri) {
 Command Line
 ------------
 
-    -h, --help             output usage information
-    -V, --version          output the version number
-    -s, --search           search for all packages
-    -d, --download         download package
-    -p, --package <pkg>    package name or query
-    -r, --repo <repo>      package repository name [core]
-    -a, --arch <arch>      system architecture [x86_64]
-    -c, --concurrency <n>  number of concurrency downloads [1]
-    -D, --dir <dir>        path to save downloads
-    -q, --quiet            no version output
+    Commands:
+
+      search <query>
+      download <pkg> [pkg...]
+
+    Options:
+
+      -h, --help         output usage information
+      -V, --version      output the version number
+      -a, --arch <arch>  system architecture
+      -d, --dir <dir>    path to save downloads
+      -q, --quiet        no version output
 
 ### Examples
 
 Search for keyword on all repos:
 
-    $ archr -sp linux
+    $ archr search linux
 
 Search for keyword on a specific repo:
 
-    $ archr -sp linux -r testing # or '-sp testing/linux'
+    $ archr search testing/linux
 
 Download package (change mirror in `archr.defaults`):
 
-    $ archr -dp testing/linux
+    $ archr download testing/linux
 
 License
 -------
-Released under the terms of the
-[MIT license](http://tldrlegal.com/license/mit-license). See **LICENSE**.
+This software is released under the terms of the **MIT license**. See `LICENSE`.

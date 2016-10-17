@@ -4,19 +4,23 @@
   "author": "Gavin Lloyd <gavinhungry@gmail.com>",
   "description": "Search for and download Arch Linux packages",
   "license": "MIT",
+
   "keywords": [
     "linux",
     "archlinux"
   ],
+
   "homepage": "https://github.com/gavinhungry/archr",
   "repository": {
     "type": "git",
     "url": "git://github.com/gavinhungry/archr.git"
   },
+
   "main": "lib/archr.js",
   "bin": {
     "archr": "bin/archr"
   },
+
   "dependencies": {
     "async": "2.1.2",
     "colors": "^1.1.2",

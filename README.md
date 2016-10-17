@@ -40,7 +40,7 @@ archr.package('linux', 'testing').then(function(pkg) {
 ### Download URI
 
 ```javascript
-// archr.download(pkgname, [repo], [arch]) -> {Promise}
+// archr.uri(pkgname, [repo], [arch]) -> {Promise}
 
 archr.uri('linux', 'testing').then(function(uri) {
   // uri is a URI to download testing/linux

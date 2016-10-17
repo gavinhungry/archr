@@ -90,7 +90,8 @@
     download: function(uri) {
       console.log('Downloading', uri);
       return download(uri, app.dir).catch(function(err) {
-        console.error(colors.red(sprintf('Error: %s', err.message)));
+        console.error(colors.red(sprintf('Error: %s [%s]',
+          err.message, err.code || err.statusCode)));
       });
     },
 

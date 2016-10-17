@@ -124,7 +124,7 @@
     pkgs.unshift(pkg);
 
     var uris_p = pkgs.map(split).map(function(pkg) {
-      return archr.getUri(pkg.pkgname, pkg.repo, app.arch).catch(function() {
+      return archr.uri(pkg.pkgname, pkg.repo, app.arch).catch(function() {
         console.error(colors.red(sprintf('Error: Could not find package [%s/%s]',
           pkg.repo || archr.defaults.repo, pkg.pkgname)));
       });

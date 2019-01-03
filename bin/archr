@@ -89,7 +89,10 @@
      */
     download: uri => {
       console.log('Downloading', uri);
-      return download(uri, app.dir).catch(err => {
+
+      return download(uri, app.dir, {
+        rejectUnauthorized: !app.ignoreCert
+      }).catch(err => {
         console.error(colors.red(sprintf('Error: %s [%s]',
           err.message, err.code || err.statusCode)));
       });
@@ -116,6 +119,7 @@
     .version(pjson.version)
     .option('-a, --arch <arch>', sprintf('system architecture [%s]', archr.defaults.arch))
     .option('-d, --dir <dir>', 'path to save downloads', process.cwd())
+    .option('-i, --ignore-cert', 'ignore certificate errors')
     .option('-q, --quiet', 'no version output');
 
   app.command('search <query>').action(cli.search);
@@ -140,5 +144,4 @@
   }
 
   app.parse(process.argv);
-
 })();

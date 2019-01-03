@@ -27,7 +27,7 @@
 
     let s = pkgname.split('/');
     if (s.length > 1) {
-      repo = s[0]
+      repo = s[0];
       pkgname = s[1];
     }
 
@@ -64,7 +64,7 @@
     search: async query => {
       let { pkgname, repo } = split(query);
 
-      let results = await archr.search(pkgname, repo, app.arch).catch(err => {
+      let results = await archr.search(pkgname, repo, app.arch).catch(() => {
         cli.exit(1, 'Search error');
       });
 
@@ -105,7 +105,7 @@
      * @return {Promise} to resolve to saved paths
      */
     downloads: uris => {
-      return new Promise((res, rej) => {
+      return new Promise(res => {
         async.mapSeries(uris, (uri, callback) => {
           cli.download(uri).then(() => {
             callback();

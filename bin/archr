@@ -5,16 +5,16 @@
  * https://github.com/gavinhungry/archr
  */
 
-(function() {
+(() => {
   'use strict';
 
-  var pjson = require('../package.json');
-  var archr = require('../lib/archr.js');
+  const pjson = require('../package.json');
+  const archr = require('../lib/archr.js');
 
-  var async    = require('async');
-  var colors   = require('colors/safe');
-  var download = require('download');
-  var sprintf  = require('sprintf');
+  const async    = require('async');
+  const colors   = require('colors/safe');
+  const download = require('download');
+  const sprintf  = require('sprintf');
 
   /**
    * Split repo and pkgname apart
@@ -22,10 +22,10 @@
    * @param {String} pkgname - package name or repo/package
    * @return {Object} { repo, pkgname }
    */
-  var split = function(pkgname) {
-    var repo = null;
+  let split = pkgname => {
+    let repo = null;
 
-    var s = pkgname.split('/');
+    let s = pkgname.split('/');
     if (s.length > 1) {
       repo = s[0]
       pkgname = s[1];
@@ -37,18 +37,18 @@
     };
   };
 
-  var cli = {
+  let cli = {
     /**
      * Exit now
      *
      * @param {Number} [code] - exit code
      * @param {String} [msg] - exit message
      */
-    exit: function(code, msg) {
+    exit: (code, msg) => {
       code = code || 0;
 
       if (msg) {
-        var output = (code === 0) ? 'log' : 'error';
+        let output = (code === 0) ? 'log' : 'error';
         console[output](msg);
       }
 
@@ -61,23 +61,23 @@
      * @param {String} query
      * @return {Promise}
      */
-    search: function(query) {
-      var args = split(query);
+    search: async query => {
+      let { pkgname, repo } = split(query);
 
-      return archr.search(args.pkgname, args.repo, app.arch).then(function(results) {
-        results.map(function(pkg) {
-          var line = sprintf('%s/%s', pkg.repo, pkg.pkgname);
-
-          if (!app.quiet) {
-            line += sprintf(' %s-%s', pkg.pkgver, pkg.pkgrel);
-          }
-
-          return line;
-        }).sort().forEach(function(line) {
-          console.log(line);
-        });
-      }, function(err) {
+      let results = await archr.search(pkgname, repo, app.arch).catch(err => {
         cli.exit(1, 'Search error');
+      });
+
+      results.map(pkg => {
+        let line = sprintf('%s/%s', pkg.repo, pkg.pkgname);
+
+        if (!app.quiet) {
+          line += sprintf(' %s-%s', pkg.pkgver, pkg.pkgrel);
+        }
+
+        return line;
+      }).sort().forEach(line => {
+        console.log(line);
       });
     },
 
@@ -87,9 +87,9 @@
      * @param {String} uri - file URI
      * @return {Promise}
      */
-    download: function(uri) {
+    download: uri => {
       console.log('Downloading', uri);
-      return download(uri, app.dir).catch(function(err) {
+      return download(uri, app.dir).catch(err => {
         console.error(colors.red(sprintf('Error: %s [%s]',
           err.message, err.code || err.statusCode)));
       });
@@ -98,13 +98,13 @@
     /**
      * Download multiple files
      *
-     * @param {Array} uris - file URIs
+     * @param {Array.<String>} uris - file URIs
      * @return {Promise} to resolve to saved paths
      */
-    downloads: function(uris) {
-      return new Promise(function(res, rej) {
-        async.mapSeries(uris, function(uri, callback) {
-          cli.download(uri).then(function() {
+    downloads: uris => {
+      return new Promise((res, rej) => {
+        async.mapSeries(uris, (uri, callback) => {
+          cli.download(uri).then(() => {
             callback();
           });
         }, res);
@@ -112,7 +112,7 @@
     }
   };
 
-  var app = require('commander')
+  let app = require('commander')
     .version(pjson.version)
     .option('-a, --arch <arch>', sprintf('system architecture [%s]', archr.defaults.arch))
     .option('-d, --dir <dir>', 'path to save downloads', process.cwd())
@@ -120,17 +120,17 @@
 
   app.command('search <query>').action(cli.search);
 
-  app.command('download <pkg> [pkg...]').action(function(pkg, pkgs) {
+  app.command('download <pkg> [pkg...]').action((pkg, pkgs) => {
     pkgs.unshift(pkg);
 
-    var uris_p = pkgs.map(split).map(function(pkg) {
-      return archr.uri(pkg.pkgname, pkg.repo, app.arch).catch(function() {
+    let uris_p = pkgs.map(split).map(pkg => {
+      return archr.uri(pkg.pkgname, pkg.repo, app.arch).catch(() => {
         console.error(colors.red(sprintf('Error: Could not find package [%s/%s]',
           pkg.repo || archr.defaults.repo, pkg.pkgname)));
       });
     });
 
-    return Promise.all(uris_p).then(function(uris) {
+    return Promise.all(uris_p).then(uris => {
       return cli.downloads(uris.filter(Boolean));
     });
   });

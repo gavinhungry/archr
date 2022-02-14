@@ -120,6 +120,7 @@
     .option('-a, --arch <arch>', sprintf('system architecture [%s]', archr.defaults.arch))
     .option('-d, --dir <dir>', 'path to save downloads', process.cwd())
     .option('-i, --ignore-cert', 'ignore certificate errors')
+    .option('-s, --signatures', 'also download signature files')
     .option('-q, --quiet', 'no version output');
 
   app.command('search <query>').action(cli.search);
@@ -135,6 +136,12 @@
     });
 
     return Promise.all(uris_p).then(uris => {
+      if (app.signatures) {
+        uris = uris.map(uri => {
+          return [uri, `${uri}.sig`]
+        }).flat();
+      }
+
       return cli.downloads(uris.filter(Boolean));
     });
   });

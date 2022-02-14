@@ -1,6 +1,6 @@
 {
   "name": "archr",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "Gavin Lloyd <gavinhungry@gmail.com>",
   "description": "Search for and download Arch Linux packages",
   "license": "MIT",

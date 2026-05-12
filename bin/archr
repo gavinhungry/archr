@@ -11,10 +11,23 @@
   const pjson = require('../package.json');
   const archr = require('../lib/archr.js');
 
-  const async    = require('async');
-  const colors   = require('colors/safe');
-  const download = require('download');
-  const sprintf  = require('sprintf');
+  const fs = require('node:fs/promises');
+  const path = require('node:path');
+  const { styleText } = require('node:util');
+
+  let red = str => styleText('red', str);
+
+  let download = async (uri, dir) => {
+    let response = await fetch(uri);
+    if (!response.ok) {
+      let err = new Error(response.statusText || 'Request failed');
+      err.statusCode = response.status;
+      throw err;
+    }
+    let buf = Buffer.from(await response.arrayBuffer());
+    let filename = path.basename(new URL(uri).pathname);
+    await fs.writeFile(path.join(dir, filename), buf);
+  };
 
   /**
    * Split repo and pkgname apart
@@ -62,17 +75,18 @@
      * @return {Promise}
      */
     search: async query => {
+      let opts = app.opts();
       let { pkgname, repo } = split(query);
 
-      let results = await archr.search(pkgname, repo, app.arch).catch(() => {
+      let results = await archr.search(pkgname, repo, opts.arch).catch(() => {
         cli.exit(1, 'Search error');
       });
 
       results.map(pkg => {
-        let line = sprintf('%s/%s', pkg.repo, pkg.pkgname);
+        let line = `${pkg.repo}/${pkg.pkgname}`;
 
-        if (!app.quiet) {
-          line += sprintf(' %s-%s', pkg.pkgver, pkg.pkgrel);
+        if (!opts.quiet) {
+          line += ` ${pkg.pkgver}-${pkg.pkgrel}`;
         }
 
         return line;
@@ -88,13 +102,11 @@
      * @return {Promise}
      */
     download: uri => {
+      let opts = app.opts();
       console.log('Downloading', uri);
 
-      return download(uri, app.dir, {
-        rejectUnauthorized: !app.ignoreCert
-      }).catch(err => {
-        console.error(colors.red(sprintf('Error: %s [%s]',
-          err.message, err.code || err.statusCode)));
+      return download(uri, opts.dir).catch(err => {
+        console.error(red(`Error: ${err.message} [${err.code || err.statusCode}]`));
       });
     },
 
@@ -104,39 +116,40 @@
      * @param {Array.<String>} uris - file URIs
      * @return {Promise} to resolve to saved paths
      */
-    downloads: uris => {
-      return new Promise(res => {
-        async.mapSeries(uris, (uri, callback) => {
-          cli.download(uri).then(() => {
-            callback();
-          });
-        }, res);
-      });
+    downloads: async uris => {
+      for (let uri of uris) {
+        await cli.download(uri);
+      }
     }
   };
 
-  let app = require('commander')
+  let app = require('commander').program
     .version(pjson.version)
-    .option('-a, --arch <arch>', sprintf('system architecture [%s]', archr.defaults.arch))
+    .option('-a, --arch <arch>', `system architecture [${archr.defaults.arch}]`)
     .option('-d, --dir <dir>', 'path to save downloads', process.cwd())
     .option('-i, --ignore-cert', 'ignore certificate errors')
     .option('-s, --signatures', 'also download signature files')
-    .option('-q, --quiet', 'no version output');
+    .option('-q, --quiet', 'no version output')
+    .hook('preAction', cmd => {
+      if (cmd.opts().ignoreCert) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+    });
 
   app.command('search <query>').action(cli.search);
 
   app.command('download <pkg> [pkg...]').action((pkg, pkgs) => {
+    let opts = app.opts();
     pkgs.unshift(pkg);
 
     let uris_p = pkgs.map(split).map(pkg => {
-      return archr.uri(pkg.pkgname, pkg.repo, app.arch).catch(() => {
-        console.error(colors.red(sprintf('Error: Could not find package [%s/%s]',
-          pkg.repo || archr.defaults.repo, pkg.pkgname)));
+      return archr.uri(pkg.pkgname, pkg.repo, opts.arch).catch(() => {
+        console.error(red(`Error: Could not find package [${pkg.repo || archr.defaults.repo}/${pkg.pkgname}]`));
       });
     });
 
     return Promise.all(uris_p).then(uris => {
-      if (app.signatures) {
+      if (opts.signatures) {
         uris = uris.map(uri => {
           return [uri, `${uri}.sig`]
         }).flat();

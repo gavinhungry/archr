@@ -12,7 +12,7 @@ Usage
 -----
 
 ```javascript
-var archr = require('archr');
+const archr = require('archr');
 ```
 
 See `archr.defaults` for configurable defaults.
@@ -22,9 +22,8 @@ See `archr.defaults` for configurable defaults.
 ```javascript
 // archr.search(query, [repo], [arch]) -> {Promise}
 
-archr.search('linux').then(function(pkgs) {
-  // pkgs is an array of package data objects
-});
+let pkgs = await archr.search('linux');
+// pkgs is an array of package data objects
 ```
 
 ### Individual Package
@@ -32,9 +31,8 @@ archr.search('linux').then(function(pkgs) {
 ```javascript
 // archr.package(pkgname, [repo], [arch]) -> {Promise}
 
-archr.package('linux', 'testing').then(function(pkg) {
-  // pkg is a single package data object
-});
+let pkg = await archr.package('linux', 'testing');
+// pkg is a single package data object
 ```
 
 ### Download URI
@@ -42,26 +40,30 @@ archr.package('linux', 'testing').then(function(pkg) {
 ```javascript
 // archr.uri(pkgname, [repo], [arch]) -> {Promise}
 
-archr.uri('linux', 'testing').then(function(uri) {
-  // uri is a URI to download testing/linux
-});
+let uri = await archr.uri('linux', 'testing');
+// uri is a URI to download testing/linux
 ```
 
 Command Line
 ------------
 
+    Usage: archr [options] [command]
+
+    Options:
+
+      -V, --version            output the version number
+      -a, --arch <arch>        system architecture [x86_64]
+      -d, --dir <dir>          path to save downloads
+      -i, --ignore-cert        ignore certificate errors
+      -s, --signatures         also download signature files
+      -q, --quiet              no version output
+      -h, --help               display help for command
+
     Commands:
 
       search <query>
       download <pkg> [pkg...]
-
-    Options:
-
-      -h, --help         output usage information
-      -V, --version      output the version number
-      -a, --arch <arch>  system architecture
-      -d, --dir <dir>    path to save downloads
-      -q, --quiet        no version output
+      help [command]           display help for command
 
 ### Examples
 

@@ -23,6 +23,6 @@
   },
 
   "dependencies": {
-    "commander": "14.x.x"
+    "commander": "15.x.x"
   }
 }
